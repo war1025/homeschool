@@ -30,9 +30,9 @@ ROW_TEMPLATE = """
 """
 
 
-ADD_TEMPLATE = "\\opadd[carryadd=false, voperator=bottom, resultstyle=\\white]{%d}{%d} \\hfill "
+ADD_TEMPLATE = "\\opadd[carryadd=false, voperator=bottom, resultstyle=\gobble]{{{first}}}{{{second}}} \\hfill "
 
-SUB_TEMPLATE = "\\opsub[resultstyle=\gobble,voperator=bottom]{%d}{%d} \\hfill "
+SUB_TEMPLATE = "\\opsub[resultstyle=\gobble,voperator=bottom]{{{total}}}{{{first}}} \\hfill "
 
 
 NUM_ROWS = 6
@@ -40,11 +40,22 @@ NUM_COLS = 4
 
 
 def main():
+   add_rows = generateRows(ADD_TEMPLATE)
+
+   sub_rows = generateRows(SUB_TEMPLATE)
+
+
+   add_str = "\n".join(add_rows)
+   sub_str = "\n".join(sub_rows)
+
+   print(DOC_TEMPLATE % "\n".join([add_str, "\\clearpage", sub_str]))
+
+def generateRows(templateStr):
    problems = set()
 
    while len(problems) < 24:
       total = random.randint(10, 99)
-      first = random.randint(3, min(10, total - 1))
+      first = random.randint(3, total - 1)
 
       second = total - first
 
@@ -66,9 +77,10 @@ def main():
          problem_idx = row_idx * NUM_COLS + col_idx
 
          row_values.append(
-            SUB_TEMPLATE % (
-               problems[problem_idx][2],
-               problems[problem_idx][0],
+            templateStr.format(
+               first = problems[problem_idx][0],
+               second = problems[problem_idx][1],
+               total = problems[problem_idx][2],
             )
          )
 
@@ -76,7 +88,7 @@ def main():
          ROW_TEMPLATE % " ".join(row_values)
       )
 
-   print(DOC_TEMPLATE % "\n".join(rows))
+   return rows
 
 
 
